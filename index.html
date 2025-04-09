@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatic Bill Generation App</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+    .bg-logo {
+        background-image: url('https://firebasestorage.googleapis.com/v0/b/widecanvas-d0dd4.appspot.com/o/logos%2Fagro_bios-removebg-preview.png?alt=media&token=fd4e198d-34bf-4ec8-8fea-258dc312ef79');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 1300px 130px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: -1;
+    }
+</style>
+
+    </style>
+</head>
+<body class="p-4 min-h-screen bg-white">
+    <div class="bg-logo"></div>
+    <div id="invoice" class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <!-- Company Header -->
+        <div class="flex items-center justify-between mb-6">
+            <img src="https://firebasestorage.googleapis.com/v0/b/widecanvas-d0dd4.appspot.com/o/logos%2Fagro_bios-removebg-preview.png?alt=media&token=fd4e198d-34bf-4ec8-8fea-258dc312ef79" alt="Company Logo" class="h-20">
+            <div class="text-right">
+                <h1 class="text-2xl font-bold primary-color">AGRO BIOS</h1>
+                <p>GREEN LAND ESTATE</p>
+                <p>Kunniganahalli Post. 573214, Sakleshpur Taluk.</p>
+                <p>Email: agrobios@gmail.com</p>
+                <p>Mobile: 9845006103</p>
+                <p>GST No: 29BPYPA2034N3ZC
+            </div>
+        </div>
+
+        <!-- Customer Information -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+                <label class="block mb-2">Customer Name:</label>
+                <input type="text" class="w-full border p-2 rounded">
+            </div>
+            <div>
+                <label class="block mb-2">Date:</label>
+                <input type="date" class="w-full border p-2 rounded">
+            </div>
+            <div class="col-span-2">
+                <label class="block mb-2">Address:</label>
+                <textarea class="w-full border p-2 rounded" rows="2"></textarea>
+            </div>
+            <div>
+                <label class="block mb-2">Customer GST No:</label>
+                <input type="text" class="w-full border p-2 rounded">
+            </div>
+        </div>
+
+        <!-- Bill Items -->
+        <div id="itemsContainer" class="mb-6">
+            <table class="w-full mb-4">
+                <thead>
+                    <tr class="secondary-bg text-white">
+                        <th class="p-2">Description</th>
+                        <th class="p-2">Quantity</th>
+                        <th class="p-2">Rate</th>
+                        <th class="p-2">Discount</th>
+                        <th class="p-2">Amount</th>
+                        <th class="p-2">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsList"></tbody>
+            </table>
+            <button id="addItem" class="primary-bg text-white px-4 py-2 rounded">Add Item</button>
+        </div>
+
+        <!-- Total Calculation -->
+        <div class="flex justify-end space-x-4 mb-6">
+            <div class="w-64">
+                <div class="flex justify-between mb-2">
+                    <label>Sub Total:</label>
+                    <span id="subTotal">₹0.00</span>
+                </div>
+                <div class="flex items-center mb-2">
+                    <input type="checkbox" id="gstCheck" class="mr-2">
+                    <label>GST (18%):</label>
+                    <span id="gstAmount" class="ml-auto">₹0.00</span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <label>Transport Charges:</label>
+                    <input type="number" id="transportCharges" class="border w-24 text-right" value="0">
+                </div>
+                <div class="flex justify-between font-bold">
+                    <label>Grand Total:</label>
+                    <span id="grandTotal">₹0.00</span>
+                </div>
+                <div id="amountInWords" class="text-sm italic mt-2"></div>
+            </div>
+        </div>
+
+        <!-- Bank Details and QR Code -->
+        <div class="flex justify-between items-start mb-6">
+            <table class="border-collapse border w-1/2">
+                <tr>
+                  <th class="border p-2">Banking Name</th>
+                    <td class="border p-2">Agro bios.</td>
+                    </tr>
+                <tr>
+                    <th class="border p-2">Bank Name</th>
+                    <td class="border p-2">Union Bank of India</td>
+                </tr>
+                <tr>
+                    <th class="border p-2">Account No</th>
+                    <td class="border p-2">510321000015382
+</td>
+                </tr>
+                <tr>
+                    <th class="border p-2">IFSC Code</th>
+                    <td class="border p-2">UBIN0902446
+</td>
+                </tr>
+                <tr>
+                    <th class="border p-2">UPI ID</th>
+                    <td class="border p-2">agrobios@uboi</td>
+                </tr>
+            </table>
+            <div id="qrcode" class="ml-4"></div>
+        </div>
+
+<!-- Add this right above the Action Buttons section -->
+<div class="text-center text-black mt-6 mb-4">
+    <p class="text-lg font-bold">Thank you for your business!</p>
+    <p class="font-bold">Agro Bios - Your Trusted Partner</p>
+</div>
+
+<!-- Action Buttons -->
+<div class="flex justify-end space-x-4" id="actionButtons">
+    <!-- existing buttons -->
+</div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-end space-x-4" id="actionButtons">
+            <button id="generateInvoice" class="primary-bg text-white px-6 py-2 rounded">Generate Invoice</button>
+            <button id="shareButton" class="secondary-bg text-white px-6 py-2 rounded">Share</button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize variables and elements
+        let items = [];
+        const itemsList = document.getElementById('itemsList');
+        const addItemBtn = document.getElementById('addItem');
+        const gstCheck = document.getElementById('gstCheck');
+        const transportCharges = document.getElementById('transportCharges');
+        
+        // Generate QR Code
+        function updateQRCode(amount) {
+            document.getElementById('qrcode').innerHTML = '';
+            new QRCode(document.getElementById('qrcode'), {
+                text: `upi://pay?pa=agrobios@uboi&am=${amount}&pn=AGRO BIOS`,
+                width: 128,
+                height: 128
+            });
+        }
+
+        // Add item row
+        function addItemRow() {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="w-full border p-1"></td>
+                <td><input type="number" class="w-full border p-1 quantity" value="1"></td>
+                <td><input type="number" class="w-full border p-1 rate" value="0"></td>
+                <td><input type="number" class="w-full border p-1 discount" value="0"></td>
+                <td class="amount p-1">₹0.00</td>
+                <td><button class="text-red-500 delete-row"><i class="bi bi-trash"></i></button></td>
+            `;
+            itemsList.appendChild(tr);
+            addRowListeners(tr);
+        }
+
+        // Calculate totals
+        function calculateTotals() {
+            let subTotal = 0;
+            document.querySelectorAll('#itemsList tr').forEach(row => {
+                const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
+                const rate = parseFloat(row.querySelector('.rate').value) || 0;
+                const discount = parseFloat(row.querySelector('.discount').value) || 0;
+                const amount = (quantity * rate) - discount;
+                row.querySelector('.amount').textContent = `₹${amount.toFixed(2)}`;
+                subTotal += amount;
+            });
+
+            document.getElementById('subTotal').textContent = `₹${subTotal.toFixed(2)}`;
+            
+            const gstAmount = gstCheck.checked ? subTotal * 0.18 : 0;
+            document.getElementById('gstAmount').textContent = `₹${gstAmount.toFixed(2)}`;
+            
+            const transport = parseFloat(transportCharges.value) || 0;
+            const grandTotal = subTotal + gstAmount + transport;
+            document.getElementById('grandTotal').textContent = `₹${grandTotal.toFixed(2)}`;
+            
+            // Update amount in words
+            const converter = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR'
+            });
+            document.getElementById('amountInWords').textContent = 
+                `${converter.format(grandTotal)} (${numberToWords(grandTotal)} Rupees Only)`;
+            
+            // Update QR Code
+            updateQRCode(grandTotal);
+        }
+
+        // Convert number to words
+        function numberToWords(num) {
+            const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+            const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+
+            if (num === 0) return 'Zero';
+
+            function recur(n) {
+                if (n < 10) return ones[n];
+                if (n < 20) return teens[n - 10];
+                if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? ' ' + ones[n % 10] : '');
+                if (n < 1000) return ones[Math.floor(n / 100)] + ' Hundred' + (n % 100 ? ' ' + recur(n % 100) : '');
+                if (n < 100000) return recur(Math.floor(n / 1000)) + ' Thousand' + (n % 1000 ? ' ' + recur(n % 1000) : '');
+                return recur(Math.floor(n / 100000)) + ' Lakh' + (n % 100000 ? ' ' + recur(n % 100000) : '');
+            }
+
+            return recur(Math.floor(num));
+        }
+
+        // Add event listeners to row inputs
+        function addRowListeners(row) {
+            const inputs = row.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('input', calculateTotals);
+            });
+            row.querySelector('.delete-row').addEventListener('click', () => {
+                row.remove();
+                calculateTotals();
+            });
+        }
+
+        // Event listeners
+        addItemBtn.addEventListener('click', addItemRow);
+        gstCheck.addEventListener('change', calculateTotals);
+        transportCharges.addEventListener('input', calculateTotals);
+
+        document.getElementById('shareButton').addEventListener('click', async () => {
+            const elements = ['addItem', 'generateInvoice', 'shareButton'];
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.style.display = 'none';
+            });
+            document.querySelectorAll('.delete-row').forEach(btn => btn.style.display = 'none');
+
+            const element = document.getElementById('invoice');
+            const opt = {
+                margin: 1,
+                filename: 'invoice.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            try {
+                const pdf = await html2pdf().set(opt).from(element).save();
+                elements.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) element.style.display = 'block';
+                });
+                document.querySelectorAll('.delete-row').forEach(btn => btn.style.display = 'block');
+            } catch (error) {
+                console.error('PDF generation failed:', error);
+            }
+        });
+
+        // Initialize first row
+        addItemRow();
+        updateQRCode(0);
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
